@@ -2,12 +2,15 @@
 
 var API_KEY = window.GoogleSamples.Config.gcmAPIKey;
 var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
+var FIREFOX_ENDPOINT = 'https://updates.push.services.mozilla.com/push';
 
 var ENABLE_MESSAGE = '通知を有効にする';
 var DISABLE_MESSAGE = '通知を無効にする';
 
 var curlCommandDiv = document.querySelector('.js-curl-command');
 var isPushEnabled = false;
+
+var mergedEndpoint = '';
 
 // This method handles the removal of subscriptionId
 // in Chrome 44 by concatenating the subscription Id
@@ -39,7 +42,7 @@ function sendSubscriptionToServer(subscription) {
   // endpointWorkaround(subscription)
   console.log('TODO: Implement sendSubscriptionToServer()');
 
-  var mergedEndpoint = endpointWorkaround(subscription);
+  mergedEndpoint = endpointWorkaround(subscription);
 
   // This is just for demo purposes / an easy to test by
   // generating the appropriate cURL command
@@ -51,20 +54,67 @@ function sendSubscriptionToServer(subscription) {
 // this to send a PUSH request directly to the endpoint
 function showCurlCommand(mergedEndpoint) {
   // The curl command to trigger a push message straight from GCM
-  if (mergedEndpoint.indexOf(GCM_ENDPOINT) !== 0) {
+  if (mergedEndpoint.indexOf(GCM_ENDPOINT) !== 0 && mergedEndpoint.indexOf(FIREFOX_ENDPOINT) !== 0) {
     window.Demo.debug.log('This browser isn\'t currently ' +
       'supported for this demo');
     return;
   }
 
-  var endpointSections = mergedEndpoint.split('/');
-  var subscriptionId = endpointSections[endpointSections.length - 1];
+  var curlCommand = '';
 
-  var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
-    '" --header Content-Type:"application/json" ' + GCM_ENDPOINT +
-    ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
+  // Chrome
+  if (mergedEndpoint.indexOf(GCM_ENDPOINT) === 0) {
+    var endpointSections = mergedEndpoint.split('/');
+    var subscriptionId = endpointSections[endpointSections.length - 1];
+
+    curlCommand = 'curl --header "Authorization: key=' + API_KEY +
+      '" --header Content-Type:"application/json" ' + GCM_ENDPOINT +
+      ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
+  } else if (mergedEndpoint.indexOf(FIREFOX_ENDPOINT) === 0) { // Firefox
+    curlCommand = 'curl "' + mergedEndpoint + '" -d ""';
+  }
 
   curlCommandDiv.textContent = curlCommand;
+}
+
+function sendMessage() {
+  if (mergedEndpoint.indexOf(GCM_ENDPOINT) === 0) {
+    // GCMはCORS非対応
+    var endpointSections = mergedEndpoint.split('/');
+    var subscriptionId = endpointSections[endpointSections.length - 1];
+
+    fetch(GCM_ENDPOINT, {
+      headers: {
+        'Authorization': 'key=' + API_KEY,
+        'Content-Type': 'application/json'
+      },
+      method: 'post',
+      mode: 'cors',
+      body: JSON.stringify({
+        registration_ids: [subscriptionId]
+      })
+    }).then(function(response) {
+      if (response.ok) {
+        window.Demo.debug.log('メッセージを送信しました');
+      } else {
+        window.Demo.debug.log('メッセージの送信に失敗しました。レスポンスコード: ' + response.status);
+      }
+    });
+    window.Demo.debug.log('Chromeは非対応です');
+  } else if (mergedEndpoint.indexOf(FIREFOX_ENDPOINT) === 0) {
+    // Firefoxも非対応
+    fetch(FIREFOX_ENDPOINT, {
+      method: 'post',
+      mode: 'cors',
+      body: ''
+    }).then(function(response) {
+      if (response.ok) {
+        window.Demo.debug.log('メッセージを送信しました');
+      } else {
+        window.Demo.debug.log('メッセージの送信に失敗しました。レスポンスコード: ' + response.status);
+      }
+    });
+  }  
 }
 
 function unsubscribe() {
@@ -205,12 +255,17 @@ function initialiseState() {
 
 window.addEventListener('load', function() {
   var pushButton = document.querySelector('.js-push-button');
+  var sendButton = document.querySelector('.js-send-button');
   pushButton.addEventListener('click', function() {
     if (isPushEnabled) {
       unsubscribe();
     } else {
       subscribe();
     }
+  });
+
+  sendButton.addEventListener('click', function() {
+    sendMessage();
   });
 
   // Check that service workers are supported, if so, progressively
