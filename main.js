@@ -3,6 +3,9 @@
 var API_KEY = window.GoogleSamples.Config.gcmAPIKey;
 var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 
+var ENABLE_MESSAGE = '通知を有効にする';
+var DISABLE_MESSAGE = '通知を無効にする';
+
 var curlCommandDiv = document.querySelector('.js-curl-command');
 var isPushEnabled = false;
 
@@ -80,7 +83,7 @@ function unsubscribe() {
           // to allow the user to subscribe to push
           isPushEnabled = false;
           pushButton.disabled = false;
-          pushButton.textContent = 'Enable Push Messages';
+          pushButton.textContent = ENABLE_MESSAGE;
           return;
         }
 
@@ -91,7 +94,7 @@ function unsubscribe() {
         // We have a subcription, so call unsubscribe on it
         pushSubscription.unsubscribe().then(function() {
           pushButton.disabled = false;
-          pushButton.textContent = 'Enable Push Messages';
+          pushButton.textContent = ENABLE_MESSAGE;
           isPushEnabled = false;
         }).catch(function(e) {
           // We failed to unsubscribe, this can lead to
@@ -120,7 +123,7 @@ function subscribe() {
       .then(function(subscription) {
         // The subscription was successful
         isPushEnabled = true;
-        pushButton.textContent = 'Disable Push Messages';
+        pushButton.textContent = DISABLE_MESSAGE;
         pushButton.disabled = false;
 
         // TODO: Send the subscription subscription.endpoint
@@ -142,7 +145,7 @@ function subscribe() {
           // and / or gcm_user_visible_only
           window.Demo.debug.log('Unable to subscribe to push.', e);
           pushButton.disabled = false;
-          pushButton.textContent = 'Enable Push Messages';
+          pushButton.textContent = ENABLE_MESSAGE;
         }
       });
   });
@@ -191,7 +194,7 @@ function initialiseState() {
 
         // Set your UI to show they have subscribed for
         // push messages
-        pushButton.textContent = 'Disable Push Messages';
+        pushButton.textContent = DISABLE_MESSAGE;
         isPushEnabled = true;
       })
       .catch(function(err) {
