@@ -14,7 +14,7 @@ var isPushEnabled = false;
 // to the subscription endpoint
 function endpointWorkaround(pushSubscription) {
   // Make sure we only mess with GCM
-  if (pushSubscription.endpoint.indexOf('https://android.googleapis.com/gcm/send') !== 0) {
+  if (pushSubscription.endpoint.indexOf(GCM_ENDPOINT) !== 0) {
     return pushSubscription.endpoint;
   }
 
