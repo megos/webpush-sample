@@ -9,6 +9,7 @@ var API_KEY = '<Your Public API Key from https://console.developers.google.com>'
 
 var app = express();
 
+app.set('port', (process.env.PORT) || 3000);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -72,4 +73,4 @@ app.use(function(err, req, res, next){
   res.end('500 Error : ' + err);
 });
 
-app.listen(3000);
+app.listen(app.get('port'));
