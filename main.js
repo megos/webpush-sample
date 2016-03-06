@@ -6,6 +6,9 @@ var FIREFOX_ENDPOINT = 'https://updates.push.services.mozilla.com/push';
 
 var ENABLE_MESSAGE = '通知を有効にする';
 var DISABLE_MESSAGE = '通知を無効にする';
+var UNSUPPORTED_BROWSER_MESSAGE = 'このブラウザは対応していません';
+var SEND_OK_MESSAGE = 'メッセージの送信が成功しました';
+var SEND_NG_MESSAGE = 'メッセージの送信に失敗しました レスポンスコード：';
 
 var curlCommandDiv = document.querySelector('.js-curl-command');
 var isPushEnabled = false;
@@ -55,8 +58,7 @@ function sendSubscriptionToServer(subscription) {
 function showCurlCommand(mergedEndpoint) {
   // The curl command to trigger a push message straight from GCM
   if (mergedEndpoint.indexOf(GCM_ENDPOINT) !== 0 && mergedEndpoint.indexOf(FIREFOX_ENDPOINT) !== 0) {
-    window.Demo.debug.log('This browser isn\'t currently ' +
-      'supported for this demo');
+    window.Demo.debug.log(UNSUPPORTED_BROWSER_MESSAGE);
     return;
   }
 
@@ -95,9 +97,9 @@ function sendMessage() {
       })
     }).then(function(response) {
       if (response.ok) {
-        window.Demo.debug.log('メッセージを送信しました');
+        window.Demo.debug.log(SEND_OK_MESSAGE);
       } else {
-        window.Demo.debug.log('メッセージの送信に失敗しました。レスポンスコード: ' + response.status);
+        window.Demo.debug.log(SEND_NG_MESSAGE + response.status);
       }
     });
     window.Demo.debug.log('Chromeは非対応です');
@@ -109,9 +111,9 @@ function sendMessage() {
       body: ''
     }).then(function(response) {
       if (response.ok) {
-        window.Demo.debug.log('メッセージを送信しました');
+        window.Demo.debug.log(SEND_OK_MESSAGE);
       } else {
-        window.Demo.debug.log('メッセージの送信に失敗しました。レスポンスコード: ' + response.status);
+        window.Demo.debug.log(SEND_NG_MESSAGE + response.status);
       }
     });
   }  
@@ -152,12 +154,11 @@ function unsubscribe() {
           // the subscription id from your data store and
           // inform the user that you disabled push
 
-          window.Demo.debug.log('Unsubscription error: ', e);
+          window.Demo.debug.log('通知解除エラー', e);
           pushButton.disabled = false;
         });
       }).catch(function(e) {
-        window.Demo.debug.log('Error thrown while unsubscribing from ' +
-          'push messaging.', e);
+        window.Demo.debug.log('通知解除時にエラーが発生しました', e);
       });
   });
 }
@@ -187,13 +188,13 @@ function subscribe() {
           // means we failed to subscribe and the user will need
           // to manually change the notification permission to
           // subscribe to push messages
-          window.Demo.debug.log('Permission for Notifications was denied');
+          window.Demo.debug.log('通知設定ができませんでした');
           pushButton.disabled = true;
         } else {
           // A problem occurred with the subscription, this can
           // often be down to an issue or lack of the gcm_sender_id
           // and / or gcm_user_visible_only
-          window.Demo.debug.log('Unable to subscribe to push.', e);
+          window.Demo.debug.log('プッシュ機能を有効にできませんでした.', e);
           pushButton.disabled = false;
           pushButton.textContent = ENABLE_MESSAGE;
         }
@@ -205,7 +206,7 @@ function subscribe() {
 function initialiseState() {
   // Are Notifications supported in the service worker?
   if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-    window.Demo.debug.log('Notifications aren\'t supported.');
+    window.Demo.debug.log('通知機能がサポートされていません');
     return;
   }
 
@@ -213,13 +214,13 @@ function initialiseState() {
   // If its denied, it's a permanent block until the
   // user changes the permission
   if (Notification.permission === 'denied') {
-    window.Demo.debug.log('The user has blocked notifications.');
+    window.Demo.debug.log('ユーザが通知機能をブロックしました');
     return;
   }
 
   // Check if push messaging is supported
   if (!('PushManager' in window)) {
-    window.Demo.debug.log('Push messaging isn\'t supported.');
+    window.Demo.debug.log('プッシュ機能がサポートされていません');
     return;
   }
 
@@ -248,7 +249,7 @@ function initialiseState() {
         isPushEnabled = true;
       })
       .catch(function(err) {
-        window.Demo.debug.log('Error during getSubscription()', err);
+        window.Demo.debug.log('登録中にエラーが発生しました', err);
       });
   });
 }
@@ -274,6 +275,6 @@ window.addEventListener('load', function() {
     navigator.serviceWorker.register('./service-worker.js')
     .then(initialiseState);
   } else {
-    window.Demo.debug.log('Service workers aren\'t supported in this browser.');
+    window.Demo.debug.log(UNSUPPORTED_BROWSER_MESSAGE);
   }
 });
