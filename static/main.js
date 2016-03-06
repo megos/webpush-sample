@@ -7,7 +7,7 @@ var FIREFOX_ENDPOINT = 'https://updates.push.services.mozilla.com/push';
 var ENABLE_MESSAGE = '通知を有効にする';
 var DISABLE_MESSAGE = '通知を無効にする';
 var UNSUPPORTED_BROWSER_MESSAGE = 'このブラウザは対応していません';
-var SEND_OK_MESSAGE = 'メッセージの送信が成功しました';
+var SEND_OK_MESSAGE = 'メッセージの送信に成功しました';
 var SEND_NG_MESSAGE = 'メッセージの送信に失敗しました レスポンスコード：';
 
 var curlCommandDiv = document.querySelector('.js-curl-command');
