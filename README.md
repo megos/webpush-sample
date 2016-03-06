@@ -6,6 +6,9 @@ Google ChromeやFirefoxで動作するWebPushのサンプルプログラム
 ## Original
 - [GoogleChrome/samples/push-messaging-and-notifications](https://github.com/GoogleChrome/samples/tree/gh-pages/push-messaging-and-notifications)
 
+## Demo
+- [デモページ](https://megos-webpush-sample.herokuapp.com/)
+
 
 ## Usage
 
