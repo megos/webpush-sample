@@ -80,20 +80,25 @@ function showCurlCommand(mergedEndpoint) {
 }
 
 function sendMessage() {
-  if (mergedEndpoint.indexOf(GCM_ENDPOINT) === 0) {
-    // GCMはCORS非対応
-    var endpointSections = mergedEndpoint.split('/');
-    var subscriptionId = endpointSections[endpointSections.length - 1];
+  var endpointSections = mergedEndpoint.split('/');
+  var subscriptionId = endpointSections[endpointSections.length - 1];
+  var browser = '';
 
-    fetch(GCM_ENDPOINT, {
+  if (mergedEndpoint.indexOf(GCM_ENDPOINT) === 0) {
+    browser = 'chrome';
+  } else if (mergedEndpoint.indexOf(FIREFOX_ENDPOINT) === 0) {
+    browser = 'firefox';
+  }
+
+  if (browser !== '') {
+    fetch('/api', {
+      method: 'post',
       headers: {
-        'Authorization': 'key=' + API_KEY,
         'Content-Type': 'application/json'
       },
-      method: 'post',
-      mode: 'cors',
       body: JSON.stringify({
-        registration_ids: [subscriptionId]
+        'endpoint': subscriptionId,
+        'browser': browser
       })
     }).then(function(response) {
       if (response.ok) {
@@ -102,21 +107,7 @@ function sendMessage() {
         window.Demo.debug.log(SEND_NG_MESSAGE + response.status);
       }
     });
-    window.Demo.debug.log('Chromeは非対応です');
-  } else if (mergedEndpoint.indexOf(FIREFOX_ENDPOINT) === 0) {
-    // Firefoxも非対応
-    fetch(FIREFOX_ENDPOINT, {
-      method: 'post',
-      mode: 'cors',
-      body: ''
-    }).then(function(response) {
-      if (response.ok) {
-        window.Demo.debug.log(SEND_OK_MESSAGE);
-      } else {
-        window.Demo.debug.log(SEND_NG_MESSAGE + response.status);
-      }
-    });
-  }  
+  }
 }
 
 function unsubscribe() {
