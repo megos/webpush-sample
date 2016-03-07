@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 
 app.use('/', express.static(__dirname + '/static'));
 
-app.post('/api', function(req, res) {
+app.post('/push', function(req, res) {
 
   if (req.body.endpoint && req.body.browser) {
 

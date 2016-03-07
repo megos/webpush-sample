@@ -91,7 +91,7 @@ function sendMessage() {
   }
 
   if (browser !== '') {
-    fetch('/api', {
+    fetch('/push', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
