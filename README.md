@@ -32,7 +32,10 @@ Google ChromeやFirefoxで動作するWebPushのサンプルプログラム
 1. （Node.jsの環境がある場合）`app.js`の`<Your Public API Key ...>`をGCMのAPIキーに書き換える
 
 ### Firefox
-1. 特に設定の必要なし
+- 特に設定の必要なし
+
+### Node.js
+- `$ npm install`
 
 ### 実行（Node.js環境の場合）
 
